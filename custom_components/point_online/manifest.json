@@ -1,0 +1,12 @@
+
+{
+  "domain": "point_online",
+  "name": "Point_Online MQTT Sensor",
+  "version": "1.0.0",
+  "documentation": "https://github.com/alexanderznamensky/Point_Online",
+  "issue_tracker": "https://github.com/alexanderznamensky/Point_Online/issues",
+  "requirements": [],
+  "dependencies": ["mqtt"],
+  "codeowners": ["@alexanderznamensky"],
+  "config_flow": true
+}
