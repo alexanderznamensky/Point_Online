@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Point Online",
+        "description": "Введите данные для входа в личный кабинет Point Online",
+        "data": {
+          "login": "Логин",
+          "password": "Пароль",
+          "base_url": "Базовый URL",
+          "scan_interval": "Интервал обновления (минуты)"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Неверный логин или пароль",
+      "cannot_connect": "Не удалось подключиться к Point Online",
+      "unknown": "Непредвиденная ошибка"
+    },
+    "abort": {
+      "already_configured": "Эта учётная запись уже добавлена"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Настройки Point Online",
+        "data": {
+          "scan_interval": "Интервал обновления (минуты)"
+        }
+      }
+    }
+  }
+}
