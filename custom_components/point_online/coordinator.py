@@ -9,7 +9,14 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import PointOnlineApi, PointOnlineAuthError, PointOnlineApiError
-from .const import CONF_BASE_URL, CONF_LOGIN, CONF_PASSWORD, CONF_SCAN_INTERVAL, DOMAIN
+from .const import (
+    CONF_BASE_URL,
+    CONF_LOGIN,
+    CONF_PASSWORD,
+    CONF_SCAN_INTERVAL,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,7 +33,7 @@ class PointOnlineCoordinator(DataUpdateCoordinator[dict]):
 
         update_minutes = entry.options.get(
             CONF_SCAN_INTERVAL,
-            entry.data[CONF_SCAN_INTERVAL],
+            entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
         )
 
         super().__init__(

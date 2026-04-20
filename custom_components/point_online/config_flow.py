@@ -4,6 +4,7 @@ import logging
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import PointOnlineApi, PointOnlineAuthError, PointOnlineApiError
@@ -58,21 +59,22 @@ class PointOnlineConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_LOGIN): str,
                 vol.Required(CONF_PASSWORD): str,
                 vol.Optional(CONF_BASE_URL, default=DEFAULT_BASE_URL): str,
-                vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
+                vol.Optional(
+                    CONF_SCAN_INTERVAL,
+                    default=DEFAULT_SCAN_INTERVAL,
+                ): vol.All(int, vol.Range(min=5, max=1440)),
             }
         )
 
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
 
     @staticmethod
+    @callback
     def async_get_options_flow(config_entry):
-        return PointOnlineOptionsFlow(config_entry)
+        return PointOnlineOptionsFlow()
 
 
 class PointOnlineOptionsFlow(config_entries.OptionsFlow):
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
-
     async def async_step_init(self, user_input=None):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
@@ -83,9 +85,11 @@ class PointOnlineOptionsFlow(config_entries.OptionsFlow):
                     CONF_SCAN_INTERVAL,
                     default=self.config_entry.options.get(
                         CONF_SCAN_INTERVAL,
-                        self.config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+                        self.config_entry.data.get(
+                            CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
+                        ),
                     ),
-                ): int,
+                ): vol.All(int, vol.Range(min=5, max=1440)),
             }
         )
 
