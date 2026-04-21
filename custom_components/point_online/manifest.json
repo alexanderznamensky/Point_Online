@@ -1,7 +1,7 @@
 {
   "domain": "point_online",
-  "name": "Point Online data",
-  "version": "2.0.1",
+  "name": "Point Online",
+  "version": "2.0.2",
   "documentation": "https://github.com/alexanderznamensky/Point_Online",
   "issue_tracker": "https://github.com/alexanderznamensky/Point_Online/issues",
   "requirements": [],

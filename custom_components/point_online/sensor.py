@@ -154,6 +154,8 @@ class PointOnlineSensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self):
         data = self.coordinator.data or {}
         return {
+            "last_update": data.get("last_update"),
+            "execution_seconds": data.get("execution_seconds"),
             "login": data.get("login"),
             "full_name": data.get("full_name"),
             "actual_address": data.get("actual_address"),

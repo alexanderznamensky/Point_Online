@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from datetime import timedelta
 import logging
+import time
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .api import PointOnlineApi, PointOnlineAuthError, PointOnlineApiError
 from .const import (
@@ -45,8 +47,13 @@ class PointOnlineCoordinator(DataUpdateCoordinator[dict]):
         )
 
     async def _async_update_data(self) -> dict:
+        started = time.time()
+
         try:
-            return await self.api.async_get_data()
+            data = await self.api.async_get_data()
+            data["last_update"] = dt_util.now().isoformat()
+            data["execution_seconds"] = round(time.time() - started, 2)
+            return data
         except PointOnlineAuthError as err:
             raise UpdateFailed(f"Ошибка авторизации: {err}") from err
         except PointOnlineApiError as err:
