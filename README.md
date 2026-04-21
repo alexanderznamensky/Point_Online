@@ -1,6 +1,4 @@
-# Point_Online
-
-Custom Home Assistant integration for Point_Online.
+# Point_Online for Home Assistant.
 
 ## Описание
 
