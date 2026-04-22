@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import date, datetime
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
+    SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -21,8 +21,8 @@ SENSORS: tuple[SensorEntityDescription, ...] = (
         key="balance",
         name="Баланс",
         icon="mdi:cash",
-        device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement="RUB",
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
         key="status",
@@ -38,8 +38,8 @@ SENSORS: tuple[SensorEntityDescription, ...] = (
         key="monthly_payment",
         name="Ежемесячный платёж",
         icon="mdi:credit-card",
-        device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement="RUB",
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
         key="due_date",
@@ -50,17 +50,66 @@ SENSORS: tuple[SensorEntityDescription, ...] = (
         key="last_payment_amount",
         name="Последняя оплата",
         icon="mdi:bank-check",
-        device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement="RUB",
+        state_class=SensorStateClass.MEASUREMENT,
     ),
     SensorEntityDescription(
         key="last_charge_amount",
         name="Последнее списание",
         icon="mdi:cash-minus",
-        device_class=SensorDeviceClass.MONETARY,
         native_unit_of_measurement="RUB",
+        state_class=SensorStateClass.MEASUREMENT,
     ),
 )
+
+
+def day(num_days: int) -> str:
+    num_days = abs(num_days)
+    last_two = num_days % 100
+    last_one = num_days % 10
+
+    if 11 <= last_two <= 14:
+        return "дней"
+    if last_one == 1:
+        return "день"
+    if last_one in (2, 3, 4):
+        return "дня"
+    return "дней"
+
+
+def time_to_pay(due_date: str) -> tuple[str | None, int | None]:
+    if not due_date:
+        return None, None
+
+    parsed_date = None
+
+    for fmt in ("%d.%m.%Y", "%Y-%m-%d"):
+        try:
+            parsed_date = datetime.strptime(due_date, fmt)
+            break
+        except ValueError:
+            continue
+
+    if parsed_date is None:
+        try:
+            parsed_date = datetime.fromisoformat(due_date)
+        except ValueError:
+            return None, None
+
+    today = datetime.now().date()
+    num_days = (parsed_date.date() - today).days
+    days = day(num_days)
+
+    if num_days == 0:
+        msg = "Сегодня срок оплаты Point Online!"
+    elif 0 < num_days <= 5:
+        msg = f"Через {num_days} {days} нужно оплатить Point Online!"
+    elif num_days < 0:
+        msg = "Просрочена оплата Point Online!!!"
+    else:
+        msg = f"Все в порядке!\nОплачивать Point Online нужно через {num_days} {days}."
+
+    return msg, num_days
 
 
 async def async_setup_entry(
@@ -153,7 +202,8 @@ class PointOnlineSensor(CoordinatorEntity, SensorEntity):
     @property
     def extra_state_attributes(self):
         data = self.coordinator.data or {}
-        return {
+
+        attrs = {
             "last_update": data.get("last_update"),
             "execution_seconds": data.get("execution_seconds"),
             "login": data.get("login"),
@@ -186,3 +236,11 @@ class PointOnlineSensor(CoordinatorEntity, SensorEntity):
             "avg_payment_amount": data.get("avg_payment_amount"),
             "avg_charge_amount": data.get("avg_charge_amount"),
         }
+
+        if self.entity_description.key == "balance":
+            due_date = data.get("due_date")
+            message, days_left = time_to_pay(str(due_date) if due_date else "")
+            attrs["days_left"] = days_left
+            attrs["message"] = message
+
+        return attrs
