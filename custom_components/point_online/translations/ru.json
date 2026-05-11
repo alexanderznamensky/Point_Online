@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Point Online",
-        "description": "Введите данные для входа в личный кабинет Point Online",
+        "title": "ISP Точка Связи",
+        "description": "Введите данные для входа в личный кабинет ISP Точка Связи",
         "data": {
           "login": "Логин",
           "password": "Пароль",
@@ -14,7 +14,7 @@
     },
     "error": {
       "invalid_auth": "Неверный логин или пароль",
-      "cannot_connect": "Не удалось подключиться к Point Online",
+      "cannot_connect": "Не удалось подключиться к ISP Точка Связи",
       "unknown": "Непредвиденная ошибка"
     },
     "abort": {
@@ -24,7 +24,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Настройки Point Online",
+        "title": "Настройки ISP Точка Связи",
         "data": {
           "scan_interval": "Интервал обновления (минуты)"
         }
