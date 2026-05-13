@@ -150,7 +150,21 @@ class PointOnlineSensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         if not self.coordinator.data:
             return None
-        return self.coordinator.data.get(self.entity_description.key)
+
+        value = self.coordinator.data.get(self.entity_description.key)
+
+        if value is None:
+            return None
+
+        if self.entity_description.key in (
+            "balance",
+            "monthly_payment",
+            "last_payment_amount",
+            "last_charge_amount",
+        ):
+            return float(f"{float(value):.2f}")
+
+        return value
 
     @property
     def state(self):
